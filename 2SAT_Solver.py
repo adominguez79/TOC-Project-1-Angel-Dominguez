@@ -4,7 +4,7 @@ import networkx as nx
 import csv
 import random
 
-
+#Class for csv data into a CNF 
 class CNF:
     def __init__(self,Pnum) -> None:
         self.problem = Pnum
@@ -12,8 +12,8 @@ class CNF:
         self.satisfiable = '?'
         self.clauses = []
         self.graph = nx.DiGraph()
-        self.SCCTime = None
-        self.DumbSatTime = None
+        self.SCC_time = None
+        self.dumb_sat_time = None
 
     def add_clause(self,var1, var2):
         self.clauses.append([var1,var2])
@@ -47,8 +47,7 @@ def two_sat(clauses, num_vars):
     for i, j in clauses:
         graph.add_edge(-i,j)
         graph.add_edge(-j,i)
-    #finds strongly connected components
-    scc_map = nx.strongly_connected_components(graph)
+    scc_map = nx.strongly_connected_components(graph) #finds strongly connected components
     # if a variable and it's complement is in the same scc, then it's not satisfiable
     for scc in scc_map:
         for val in scc:
@@ -114,27 +113,27 @@ for cnf in cnfs:
     start = time.time()
     if two_sat(cnf.clauses, cnf.variables):
         end = time.time()
-        cnf.SCCTime = int((end-start)*1e6)
+        cnf.SCC_time = int((end-start)*1e6)
         cnf.satisfiable = 'S'
-        f1.write(f"Problem {cnf.problem} is satisfiable and was solved in {cnf.SCCTime} miliseconds\n")
+        f1.write(f"Problem {cnf.problem} is satisfiable and was solved in {cnf.SCC_time} miliseconds\n")
     else:
         end = time.time()
-        cnf.SCCTime = int((end-start)*1e6)
+        cnf.SCC_time = int((end-start)*1e6)
         cnf.satisfiable = 'U'
-        f1.write(f"Problem {cnf.problem} is unsatisfiable and was solved in {cnf.SCCTime} milisecons\n")
+        f1.write(f"Problem {cnf.problem} is unsatisfiable and was solved in {cnf.SCC_time} milisecons\n")
 
 f1.close()
 
 #Plot Results
 
-Two_SAT_times = [x.SCCTime for x in cnfs]
-Dumb_SAT_times = [x.DumbSatTime for x in cnfs]
-Num_Clauses = [len(x.clauses) for x in cnfs]
+two_SAT_times = [x.SCC_time for x in cnfs]
+dumb_SAT_times = [x.dumb_sat_time for x in cnfs]
+num_clauses = [len(x.clauses) for x in cnfs]
 
 plt.figure(figsize=(8,5))
 
-plt.plot(Num_Clauses,Two_SAT_times,label = '2SAT', color = 'blue', marker = 'o')
-plt.plot(Num_Clauses,Dumb_SAT_times,label = 'Dumb-SAT', color = 'red', marker = 'x')
+plt.plot(num_clauses,two_SAT_times,label = '2SAT', color = 'blue', marker = 'o')
+plt.plot(num_clauses,dumb_SAT_times,label = 'Dumb-SAT', color = 'red', marker = 'x')
 
 plt.xlabel('Number of Clauses')
 plt.ylabel('Execution Time (Seconds)')
